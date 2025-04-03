@@ -8,7 +8,7 @@ function App() {
   const [text, setText] = useState("");
   const [isRecording, setIsRecording] = useState(false);
 
-  function handleOnRecord() {
+  const handleOnRecord = async () => {
     // This function is to stop recording using the same botton to start recording
     if (isRecording) {
       console.log(text);
@@ -19,18 +19,22 @@ function App() {
 
     setIsRecording(true);
 
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    audioRecorder.current = new MediaRecorder(stream);
 
-    if (!recognitionRef.current) {
-      recognitionRef.current = new SpeechRecognition();
-    }
+    // Store audio data in chunks
+    audioRecorder.current.ondataavailable = event => {
+      audioChunks.current.push(event.data);
+    };
 
-    recognitionRef.current.onresult = async function(event) {
-      console.log('event', event);
-      const transcript = event.results[0][0].transcript;
-      setText(transcript);
-    }
-    recognitionRef.current.start();
+    // When recording is stopped, send the audio to the backend
+    audioRecorder.current.onstop = async () => {
+      const audioBlob = new Blob(audioChunks.current, { type: "audio/wav" });
+      await sendAudioToBackend(audioBlob);
+      audioChunks.current = [];  // Clear audio chunks for the next recording
+    };
+
+    audioRecorder.current.start();
   }
 
   return (
