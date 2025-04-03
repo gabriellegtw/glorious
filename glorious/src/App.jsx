@@ -1,32 +1,50 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useState, useRef } from 'react'
+import micLogo from '/mic.svg'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  // useRef helps to store reference to something (persists data across re-renders)
+  const recognitionRef = useRef();
+  const [text, setText] = useState("");
+  const [isRecording, setIsRecording] = useState(false);
+
+  function handleOnRecord() {
+    // This function is to stop recording using the same botton to start recording
+    if (isRecording) {
+      console.log(text);
+      recognitionRef.current?.stop();
+      setIsRecording(false);
+      return;
+    }
+
+    setIsRecording(true);
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!recognitionRef.current) {
+      recognitionRef.current = new SpeechRecognition();
+    }
+
+    recognitionRef.current.onresult = async function(event) {
+      console.log('event', event);
+      const transcript = event.results[0][0].transcript;
+      setText(transcript);
+    }
+    recognitionRef.current.start();
+  }
 
   return (
     <>
       <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
+        <a>
+          <img onClick={handleOnRecord} src={micLogo} className="logo" alt="Mic logo" />
         </a>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
+      
+      {isRecording && <p> is recording </p>}
+
       <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
+        Spoken Text: {text}
       </p>
     </>
   )
