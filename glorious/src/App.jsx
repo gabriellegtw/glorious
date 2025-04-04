@@ -39,8 +39,9 @@ function App() {
         // The below is to call on the chatgpt api to extract the relevant information from the transcript
         try {
           const response = await axios.post('http://localhost:3001/transcribe', {
-            prompt: "Return relevant information for a caregiver (i.e vitals and mediacation taken). Respond only in the form of Blood Pressure:.. [new line] Temperature:... etc. and do not add additonal words" +
-            "If there is no information given on something, do NOT add your own." + "Try to infer the units and include it too" + transcript,
+            prompt: "Return relevant information for a caregiver (i.e vitals and mediacation taken). Respond only in the format of:" +
+            + "Blood Pressure:.. \n Temperature:..., \n Pulse:.. \n Medication: ... and do not add additonal words" +
+            "If there is no information given on something, do NOT add your own. Replace it with N/A" + "Try to infer the units and include it too for the below transcript: " + transcript,
           });
       
           console.log('Transcription:', response.data.message);
