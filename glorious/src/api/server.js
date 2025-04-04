@@ -36,8 +36,10 @@ app.get('/', async (req, res) => {
   })
 });
 
+// This is the API route to process the transcript by chatgpt
 app.post('/transcribe', async (req, res) => {
     try {
+
         if (!req.body.prompt) {
             return res.status(400).json({ error: 'Prompt is required' });
         }
