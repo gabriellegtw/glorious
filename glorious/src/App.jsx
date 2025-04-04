@@ -35,7 +35,7 @@ function App() {
       
         try {
           const response = await axios.post('http://localhost:3001/transcribe', {
-            prompt: "Return relevant information for a caregiver (i.e vitals and mediacation taken). Respond only in the form of Blood Pressure:..; Temperature:... etc. and do not add additonal words" +
+            prompt: "Return relevant information for a caregiver (i.e vitals and mediacation taken). Respond only in the form of Blood Pressure:.. [new line] Temperature:... etc. and do not add additonal words" +
             "If there is no information given on something, do NOT add your own." + "Try to infer the units and include it too" + transcript,
           });
       
