@@ -6,9 +6,12 @@ import './App.css'
 function App() {
   // useRef helps to store reference to something (persists data across re-renders)
   const recognitionRef = useRef();
+  // text was used for testing purposes
   const [text, setText] = useState("");
   const [isRecording, setIsRecording] = useState(false);
+  // This checks if there is a transcript (before being processed by chatgpt)
   const [output, setOutput] = useState("");
+  // This is the text that will be displayed on the editable text box
   const [editableOutput, setEditableOutput] = useState("");
 
   function handleOnRecord() {
@@ -32,7 +35,8 @@ function App() {
       console.log('event', event);
       const transcript = event.results[0][0].transcript;
       setText(transcript);
-      
+
+        // The below is to call on the chatgpt api to extract the relevant information from the transcript
         try {
           const response = await axios.post('http://localhost:3001/transcribe', {
             prompt: "Return relevant information for a caregiver (i.e vitals and mediacation taken). Respond only in the form of Blood Pressure:.. [new line] Temperature:... etc. and do not add additonal words" +
@@ -59,10 +63,6 @@ function App() {
       </div>
       
       {isRecording && <p> is recording </p>}
-
-      <p className="read-the-docs">
-        Spoken Text: {text}
-      </p>
 
       {output && 
       <div className="w-full bg-white p-4 rounded-md shadow-md">
