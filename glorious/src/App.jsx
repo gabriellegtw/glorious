@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import micLogo from '/mic.svg'
+import axios from 'axios';
 import './App.css'
 
 function App() {
@@ -7,6 +8,8 @@ function App() {
   const recognitionRef = useRef();
   const [text, setText] = useState("");
   const [isRecording, setIsRecording] = useState(false);
+  const [output, setOutput] = useState("");
+  const [editableOutput, setEditableOutput] = useState("");
 
   function handleOnRecord() {
     // This function is to stop recording using the same botton to start recording
@@ -29,6 +32,20 @@ function App() {
       console.log('event', event);
       const transcript = event.results[0][0].transcript;
       setText(transcript);
+      
+        try {
+          const response = await axios.post('http://localhost:3001/transcribe', {
+            prompt: "Return relevant information for a caregiver (i.e vitals and mediacation taken). Respond only in the form of Blood Pressure:..; Temperature:... etc. and do not add additonal words" +
+            "If there is no information given on something, do NOT add your own" + transcript,
+          });
+      
+          console.log('Transcription:', response.data.message);
+          setOutput(response.data.message);
+          setEditableOutput(response.data.message);
+        } catch (error) {
+          console.error('Error with Axios:', error.message); // Handle error
+        }
+      
     }
     recognitionRef.current.start();
   }
@@ -46,6 +63,20 @@ function App() {
       <p className="read-the-docs">
         Spoken Text: {text}
       </p>
+
+      {output && 
+      <div className="w-full bg-white p-4 rounded-md shadow-md">
+        <p 
+          contentEditable={true}
+          className="text-left text-gray-600 whitespace-pre-wrap"
+          onInput={(e) => setEditableOutput(e.currentTarget.textContent)}
+          suppressContentEditableWarning={true}
+        >
+          {editableOutput}
+        </p>
+      </div>
+      }
+      
     </>
   )
 }
